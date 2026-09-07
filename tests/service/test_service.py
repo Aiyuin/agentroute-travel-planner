@@ -6,7 +6,7 @@ import pytest
 from langchain_core.messages import AIMessage, AIMessageChunk, HumanMessage
 from langgraph.types import Interrupt, StateSnapshot
 
-from agents.agents import Agent
+from agents.agents import DEFAULT_AGENT, Agent
 from schema import ChatHistory, ChatMessage, ServiceMetadata
 from schema.models import AnthropicModelName, OpenAIModelName
 
@@ -431,7 +431,7 @@ def test_info(test_client, mock_settings) -> None:
         assert response.status_code == 200
         output = ServiceMetadata.model_validate(response.json())
 
-    assert output.default_agent == "research-assistant"
+    assert output.default_agent == DEFAULT_AGENT
     assert len(output.agents) == 1
     assert output.agents[0].key == "base-agent"
     assert output.agents[0].description == "A base agent."

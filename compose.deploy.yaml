@@ -1,0 +1,46 @@
+services:
+  agent_service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        PACKAGE_INDEX: https://pypi.tuna.tsinghua.edu.cn/simple
+    restart: unless-stopped
+    env_file:
+      - ${ENV_FILE:-.env.deploy}
+    expose:
+      - "8080"
+    volumes:
+      - agent_data:/data
+    mem_limit: 768m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  streamlit_app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.app
+      args:
+        PACKAGE_INDEX: https://pypi.tuna.tsinghua.edu.cn/simple
+    restart: unless-stopped
+    environment:
+      AGENT_URL: http://agent_service:8080
+      AUTH_SECRET: ${AUTH_SECRET:?Use --env-file .env.deploy}
+    command: ["streamlit", "run", "streamlit_app.py", "--server.address", "0.0.0.0", "--server.port", "8501", "--server.headless", "true", "--browser.gatherUsageStats", "false"]
+    ports:
+      - "127.0.0.1:8501:8501"
+    depends_on:
+      agent_service:
+        condition: service_healthy
+    mem_limit: 384m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  agent_data:

@@ -1,14 +1,16 @@
 FROM python:3.13.14-slim
 
 WORKDIR /app
+ARG PACKAGE_INDEX=https://pypi.org/simple
 
 ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 ENV UV_COMPILE_BYTECODE=1
 
 COPY pyproject.toml .
 COPY uv.lock .
-RUN pip install --no-cache-dir uv==0.11.32
-RUN uv sync --frozen --no-install-project --no-dev
+RUN pip install --no-cache-dir --index-url ${PACKAGE_INDEX} uv==0.11.32
+RUN uv export --frozen --no-dev --no-emit-project --format requirements-txt > /tmp/requirements.txt \
+    && uv --no-config pip install --system --require-hashes --index-url ${PACKAGE_INDEX} -r /tmp/requirements.txt
 
 COPY src/agents/ ./agents/
 COPY src/core/ ./core/

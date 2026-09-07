@@ -14,9 +14,10 @@ from agents.langgraph_supervisor_hierarchy_agent import langgraph_supervisor_hie
 from agents.lazy_agent import LazyLoadingAgent
 from agents.rag_assistant import rag_assistant
 from agents.research_assistant import research_assistant
+from agents.travel_assistant import travel_assistant
 from schema import AgentInfo
 
-DEFAULT_AGENT = "research-assistant"
+DEFAULT_AGENT = "travel-assistant"
 
 # Type alias to handle LangGraph's different agent patterns
 # - @entrypoint functions return Pregel
@@ -32,6 +33,10 @@ class Agent:
 
 
 agents: dict[str, Agent] = {
+    "travel-assistant": Agent(
+        description="旅行规划：需求提取、参数校验、缺失追问与参考行程生成。",
+        graph_like=travel_assistant,
+    ),
     "chatbot": Agent(description="A simple chatbot.", graph_like=chatbot),
     "research-assistant": Agent(
         description="A research assistant with web search and calculator.",
