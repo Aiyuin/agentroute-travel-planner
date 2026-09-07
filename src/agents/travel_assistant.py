@@ -63,6 +63,13 @@ def validate_requirements(trip: TripRequirements) -> list[str]:
     return issues
 
 
+def require_complete_trip(trip: TripRequirements) -> tuple[int, float]:
+    """Return typed planning values after enforcing the graph's routing invariant."""
+    if trip.days is None or trip.budget is None:
+        raise ValueError("planning requires both days and budget")
+    return int(trip.days), trip.budget
+
+
 def selected_model(config: RunnableConfig):
     return get_model(config.get("configurable", {}).get("model", settings.DEFAULT_MODEL))
 
@@ -153,7 +160,7 @@ async def generate_plan(state: TravelState, config: RunnableConfig) -> dict:
             timeout=60,
         )
         plan = TravelPlan.model_validate(plan)
-        expected_days = int(trip.days)
+        expected_days, _ = require_complete_trip(trip)
         if [day.day for day in plan.days] != list(range(1, expected_days + 1)):
             raise ValueError("day sequence does not match requested duration")
         if expected_days == 1 and plan.costs.accommodation != 0:
@@ -178,12 +185,13 @@ def money(value: float) -> str:
 def render_plan(state: TravelState) -> dict:
     trip = TripRequirements.model_validate(state["requirements"])
     plan = TravelPlan.model_validate(state["plan"])
+    expected_days, budget = require_complete_trip(trip)
     costs = plan.costs
     total = sum(
         [costs.accommodation, costs.food, costs.local_transport, costs.tickets, costs.other]
     )
-    difference = trip.budget - total
-    lodging_nights = max(int(trip.days) - 1, 0)
+    difference = budget - total
+    lodging_nights = max(expected_days - 1, 0)
     budget_line = (
         f"预算剩余：**{money(difference)}**"
         if difference >= 0
@@ -211,7 +219,7 @@ def render_plan(state: TravelState) -> dict:
         + "\n\n### 预算核算\n\n"
         + "\n".join(cost_lines)
         + f"\n\n估算总额：**{money(total)}**\n\n"
-        + f"用户预算：**{money(trip.budget)}**；{budget_line}\n\n"
+        + f"用户预算：**{money(budget)}**；{budget_line}\n\n"
         + f"> 用户补充要求：{trip.preferences or '未提供；当前按不含往返目的地大交通估算。'}"
     )
     return {"messages": [AIMessage(content=content)]}

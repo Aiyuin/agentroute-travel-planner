@@ -24,8 +24,8 @@ from voice import VoiceManager
 # The app heavily uses AgentClient to interact with the agent's FastAPI endpoints.
 
 
-APP_TITLE = "Agent Service Toolkit"
-APP_ICON = "🧰"
+APP_TITLE = "AgentRoute"
+APP_ICON = "🧭"
 USER_ID_COOKIE = "user_id"
 
 
@@ -139,7 +139,7 @@ async def main() -> None:
         st.header(f"{APP_ICON} {APP_TITLE}")
 
         ""
-        "Full toolkit for running an AI agent service built with LangGraph, FastAPI and Streamlit"
+        "基于 LangGraph、FastAPI 与百炼的多轮旅行规划助手"
         ""
 
         if st.button(":material/chat: New Chat", use_container_width=True):
@@ -233,9 +233,7 @@ async def main() -> None:
             architecture_dialog()
 
         with st.popover(":material/policy: Privacy", use_container_width=True):
-            st.write(
-                "Prompts, responses and feedback in this app are anonymously recorded and saved to LangSmith for product evaluation and improvement purposes only."
-            )
+            st.write("对话保存在当前后端的检查点数据库中。仅在显式配置追踪服务后发送追踪数据。")
 
         @st.dialog("Share/resume chat")
         def share_chat_dialog() -> None:
@@ -258,9 +256,9 @@ async def main() -> None:
         if st.button(":material/upload: Share/resume chat", use_container_width=True):
             share_chat_dialog()
 
-        "[View the source code](https://github.com/JoshuaC215/agent-service-toolkit)"
+        "[查看 AgentRoute 源码](https://github.com/Aiyuin/agentroute-travel-planner)"
         st.caption(
-            "Made with :material/favorite: by [Joshua](https://www.linkedin.com/in/joshua-k-carroll/) in Oakland"
+            "基于 [agent-service-toolkit](https://github.com/JoshuaC215/agent-service-toolkit) 二次开发"
         )
 
     # Draw existing messages
@@ -268,6 +266,8 @@ async def main() -> None:
 
     if len(messages) == 0:
         match agent_client.agent:
+            case "travel-assistant":
+                WELCOME = "你好！我是 AgentRoute 旅行规划助手。告诉我目的地、天数和每人预算吧。"
             case "chatbot":
                 WELCOME = "Hello! I'm a simple chatbot. Ask me anything!"
             case "interrupt-agent":
