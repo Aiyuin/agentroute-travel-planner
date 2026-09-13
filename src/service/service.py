@@ -52,6 +52,8 @@ from service.utils import (
     messages_from_checkpoint,
     remove_tool_calls,
 )
+from travel.jobs import router as jobs_router
+from travel.metrics import install_metrics
 
 warnings.filterwarnings("ignore", category=LangChainBetaWarning)
 logger = logging.getLogger(__name__)
@@ -491,4 +493,6 @@ async def health_check():
     return health_status
 
 
+router.include_router(jobs_router)
+install_metrics(app, router)
 app.include_router(router)

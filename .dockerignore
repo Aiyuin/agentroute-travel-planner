@@ -12,3 +12,5 @@ venv
 .venv
 *.db
 privatecredentials/*
+
+.monitoring-token

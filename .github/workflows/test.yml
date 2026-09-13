@@ -45,6 +45,9 @@ jobs:
       run: |
         uv run pytest --cov=src/ --cov-report=xml
 
+    - name: Offline travel retrieval regression
+      run: PYTHONPATH=src uv run python scripts/evaluate_travel.py
+
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v7
       with:

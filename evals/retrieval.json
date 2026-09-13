@@ -1,0 +1,7 @@
+[
+  {"city":"杭州","query":"西湖步行休息","expected":"hz-walk"},
+  {"city":"杭州","query":"下雨博物馆预约","expected":"hz-rain"},
+  {"city":"苏州","query":"园林门票平江路","expected":"sz-garden"},
+  {"city":"北京","query":"长城交通一天","expected":"bj-distance"},
+  {"city":"成都","query":"住宿预算餐饮","expected":"general-budget"}
+]

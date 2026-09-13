@@ -1,5 +1,7 @@
 # 三天从零学会旅行规划 Agent
 
+进阶新增能力见 [进阶搭建与源码讲解](ADVANCED.md)，包括地图/MCP、RAG、异步任务、监控与评测。
+
 这是一份针对 Python 和后端初学者的实操手册。目标不是三天背完 LangGraph、FastAPI 和 Docker 的全部 API，而是让你能够独立完成以下事情：
 
 1. 在本机和服务器上启动项目。
@@ -213,6 +215,8 @@ LANGFUSE_TRACING=false
 不要执行 `cat .env` 后把输出贴到聊天、截图或 GitHub。Git 已忽略 `.env`。曾公开过的旧密钥应在百炼控制台撤销。
 
 ### 第 3 小时：启动后端和前端
+
+
 
 终端 A 启动 FastAPI：
 

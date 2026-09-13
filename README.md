@@ -1,5 +1,7 @@
 # AgentRoute：基于 LangGraph 的旅行规划助手
 
+新增进阶实现与运行边界：[进阶搭建手册](docs/learning/ADVANCED.md)。地图/MCP、RAG、Celery/Redis、监控默认按配置启用；真实外部服务需各自凭据。
+
 AgentRoute 是一个面向自由行场景的学习型旅行规划 Agent。它把用户自然语言转换为结构化需求，使用确定性规则检查目的地、天数和预算；信息不完整时主动追问，信息完整后生成每日行程，并由 Python 统一计算分类费用总额和预算差额。
 
 项目基于 [JoshuaC215/agent-service-toolkit](https://github.com/JoshuaC215/agent-service-toolkit) 二次开发，保留原项目 MIT 许可和作者归属。

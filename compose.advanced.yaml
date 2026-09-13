@@ -1,0 +1,57 @@
+# Overlay: docker compose --env-file .env.deploy -f compose.deploy.yaml -f compose.advanced.yaml --profile async --profile monitoring up -d --build
+services:
+  agent_service:
+    environment:
+      TRAVEL_ENABLED: "true"
+      TRAVEL_JOBS_ENABLED: "true"
+      TRAVEL_REDIS_URL: redis://redis:6379/0
+  redis:
+    image: redis:7.4-alpine
+    profiles: [async]
+    restart: unless-stopped
+    command: [redis-server, --appendonly, "yes", --maxmemory, 128mb, --maxmemory-policy, noeviction]
+    volumes:
+      - redis_data:/data
+    mem_limit: 192m
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  worker:
+    profiles: [async]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+    env_file: ["${ENV_FILE:-.env.deploy}"]
+    environment:
+      TRAVEL_ENABLED: "true"
+      TRAVEL_REDIS_URL: redis://redis:6379/0
+    command: [celery, -A, travel.jobs:celery_app, worker, --loglevel=warning, --concurrency=1]
+    restart: unless-stopped
+    mem_limit: 768m
+    depends_on:
+      redis:
+        condition: service_healthy
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: [monitoring]
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./.monitoring-token:/etc/prometheus/token:ro
+    ports: ["127.0.0.1:9090:9090"]
+    mem_limit: 256m
+  grafana:
+    image: grafana/grafana:12.1.0
+    profiles: [monitoring]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set a separate Grafana password}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    ports: ["127.0.0.1:3000:3000"]
+    mem_limit: 256m
+volumes:
+  redis_data:
+  grafana_data:
